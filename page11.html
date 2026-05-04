@@ -265,7 +265,7 @@ Tell us a bit about you and we’ll help you find your next setup.">
                 
                 <div class="mbr-form form-wrap card-wrap" data-form-type="formoid">
 <!--Formbuilder Form-->
-<form action="https://mobirise.eu/" method="POST" class="mbr-form form-with-styler" data-form-title="VikingX Consumer"><input type="hidden" name="email" data-form-email="true" value="Lvvln/zTww5oBAww7+xNk2AbYxxnNqFZE/NJaRh23rsmnC3NOISK0WvC+1wbIvTYV7kqR5gxTXnsGc+hHocLvXWTzAwHbIFuFaRzoZ7Uakdf+5v7F6VcxfG9ynE3d7et">
+<form action="mailto:sales@vikingx.com.tw" method="POST" enctype="text/plain" class="mbr-form form-with-styler" data-form-title="VikingX Bike Registration">
 <div class="row">
 <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">You’re all set. Time to ride.
 We’ll be in touch soon.</div>
@@ -333,7 +333,37 @@ We’ll be in touch soon.</div>
   <script src="assets/ytplayer/index.js?rnd=1777533439210"></script>
   <script src="assets/dropdown/js/navbar-dropdown.js?rnd=1777533439210"></script>
   <script src="assets/theme/js/script.js?rnd=1777533439210"></script>
-  <script src="assets/formoid.min.js?rnd=1777533439210"></script>
+  <script>
+  (function () {
+    var form = document.querySelector('form[data-form-title="VikingX Bike Registration"]');
+    if (!form) return;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      var formData = new FormData(form);
+      var lines = [
+        'New VikingX bike registration',
+        '',
+        'Full name: ' + (formData.get('Full name') || ''),
+        'Email: ' + (formData.get('Email1') || ''),
+        'Phone/WhatsApp: ' + (formData.get('Phone') || ''),
+        'Serial Number: ' + (formData.get('Serial Number') || '')
+      ];
+
+      var mailtoUrl = 'mailto:sales@vikingx.com.tw'
+        + '?subject=' + encodeURIComponent('VikingX Bike Registration')
+        + '&body=' + encodeURIComponent(lines.join('\n'));
+
+      window.location.href = mailtoUrl;
+    });
+  })();
+  </script>
   
   
   

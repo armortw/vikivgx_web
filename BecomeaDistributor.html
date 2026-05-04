@@ -183,7 +183,7 @@ Tell us about your business and let? explore new opportunities together.">
 						<a class="nav-link link text-white text-primary display-4" href="BecomeaDistributor.html">Become a Distributor&nbsp;<br></a>
 					</li></ul>
 				
-				<div class="navbar-buttons mbr-section-btn"><a class="btn btn-primary display-7" href="#"><span class="icon54-v1-bike-1 mbr-iconfont mbr-iconfont-btn"></span>
+				<div class="navbar-buttons mbr-section-btn"><a class="btn btn-primary display-7" href="page11.html"><span class="icon54-v1-bike-1 mbr-iconfont mbr-iconfont-btn"></span>
 						
 						Register your bike</a></div>
 			</div>
@@ -233,7 +233,7 @@ Tell us about your business and let? explore new opportunities together.">
                 
                 <div class="mbr-form form-wrap card-wrap" data-form-type="formoid">
 <!--Formbuilder Form-->
-<form action="https://mobirise.eu/" method="POST" class="mbr-form form-with-styler" data-form-title="VikingX Distributor Form"><input type="hidden" name="email" data-form-email="true" value="belolt/BlmEauGRIGsQiCf2Wg7L7daIlIq9oOAI3b8nK9i1nZkZsCZ4Q4gzBrzcPOz85dzq+8v1dg2c91ZHANv3kEI9Aa3gT/olxHujeUImxYoO9Tx5ymMw/xn8B3895">
+<form action="mailto:sales@vikingx.com.tw" method="POST" enctype="text/plain" class="mbr-form form-with-styler" data-form-title="VikingX Distributor Form">
 <div class="row">
 <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">You?e all set. Time to ride.
 We?l be in touch soon.</div>
@@ -324,7 +324,44 @@ We?l be in touch soon.</div>
   <script src="assets/ytplayer/index80ca.js?rnd=1777367578132"></script>
   <script src="assets/dropdown/js/navbar-dropdown80ca.js?rnd=1777367578132"></script>
   <script src="assets/theme/js/script80ca.js?rnd=1777367578132"></script>
-  <script src="assets/formoid.min80ca.js?rnd=1777367578132"></script>
+  <script>
+  (function () {
+    var form = document.querySelector('form[data-form-title="VikingX Distributor Form"]');
+    if (!form) return;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      var formData = new FormData(form);
+      var lines = [
+        'New VikingX distributor inquiry',
+        '',
+        'Full name: ' + (formData.get('Full Name') || ''),
+        'Company Name: ' + (formData.get('Company Name') || ''),
+        'Email: ' + (formData.get('Email1') || ''),
+        'Phone/WhatsApp: ' + (formData.get('Phone') || ''),
+        'Country: ' + (formData.get('Country') || ''),
+        'City: ' + (formData.get('City') || ''),
+        'Type of Business: ' + (formData.get('Type of business') || ''),
+        'Years in Business: ' + (formData.get('Years in business') || ''),
+        '',
+        'Message:',
+        formData.get('Message') || ''
+      ];
+
+      var mailtoUrl = 'mailto:sales@vikingx.com.tw'
+        + '?subject=' + encodeURIComponent('VikingX Distributor Inquiry')
+        + '&body=' + encodeURIComponent(lines.join('\n'));
+
+      window.location.href = mailtoUrl;
+    });
+  })();
+  </script>
   
   
   
