@@ -134,6 +134,16 @@ BORN IN THE STREETS, BUILT FOR THE FEARLESS.">
   @-o-keyframes animationClosing { 0% { height: 14rem; opacity: 1; } 30% { height: 14rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
   @keyframes animationClosing { 0% { height: 14rem; opacity: 1; } 30% { height: 14rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
 }
+/* Keep menu links readable on the pink navigation background. */
+.navbar .navbar-nav .nav-link:hover,
+.navbar .navbar-nav .nav-link:focus,
+.navbar .navbar-nav .nav-link:active,
+.navbar .navbar-nav .nav-link:hover span,
+.navbar .navbar-nav .nav-link:focus span,
+.navbar .navbar-nav .nav-link:active span {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
 </style>
 </head>
 <body>
