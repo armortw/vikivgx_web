@@ -144,20 +144,29 @@ Tell us a bit about you and we’ll help you find your next setup.">
   color: #000;
   background: #fff;
 }
-/* Keep menu links readable on the pink navigation background. */
+/* Make menu hover states stand out on the pink navigation background. */
+.navbar .navbar-nav .nav-link {
+  border-radius: 8px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
 .navbar .navbar-nav .nav-link:hover,
 .navbar .navbar-nav .nav-link:focus,
-.navbar .navbar-nav .nav-link:active,
+.navbar .navbar-nav .nav-link:active {
+  color: #121212 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 8px 18px rgba(0, 0, 0, 0.24);
+  text-shadow: none !important;
+  transform: translateY(-1px);
+}
 .navbar .navbar-nav .nav-link:hover span,
 .navbar .navbar-nav .nav-link:focus span,
 .navbar .navbar-nav .nav-link:active span {
-  color: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  color: #121212 !important;
+  text-shadow: none !important;
 }
 </style>
 </head>
 <body>
-</div>
   
   <section data-bs-version="5.1" class="menu menu1 rebootm5 cid-vifOxwFC7i" once="menu" id="menu01-5j">
 	
