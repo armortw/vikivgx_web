@@ -319,7 +319,7 @@ Tell us a bit about you and we’ll help you find your next setup.">
                 
                 <div class="mbr-form form-wrap card-wrap" data-form-type="formoid">
 <!--Formbuilder Form-->
-<form action="mailto:sales@vikingx.com.tw" method="POST" enctype="text/plain" class="mbr-form form-with-styler" data-form-title="VikingX Bike Registration">
+<form class="mbr-form form-with-styler" data-form-title="VikingX Bike Registration">
 <div class="row">
 <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">You’re all set. Time to ride.
 We’ll be in touch soon.</div>
@@ -381,6 +381,8 @@ We’ll be in touch soon.</div>
 </section>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init({ publicKey: 'tfBHmUcBAfBXiLCY2' });</script>
   <script src="assets/web/assets/jquery/jquery.min.js?rnd=1777533439210"></script>
   <script src="assets/bootstrap/js/bootstrap.bundle.min.js?rnd=1777533439210"></script>
   <script src="assets/smoothscroll/smooth-scroll.js?rnd=1777533439210"></script>
@@ -392,6 +394,10 @@ We’ll be in touch soon.</div>
     var form = document.querySelector('form[data-form-title="VikingX Bike Registration"]');
     if (!form) return;
 
+    var alertSuccess = form.querySelector('[data-form-alert]');
+    var alertDanger  = form.querySelector('[data-form-alert-danger]');
+    var submitBtn    = form.querySelector('[type="submit"]');
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
@@ -400,21 +406,33 @@ We’ll be in touch soon.</div>
         return;
       }
 
-      var formData = new FormData(form);
-      var lines = [
-        'New VikingX bike registration',
-        '',
-        'Full name: ' + (formData.get('Full name') || ''),
-        'Email: ' + (formData.get('Email1') || ''),
-        'Phone/WhatsApp: ' + (formData.get('Phone') || ''),
-        'Serial Number: ' + (formData.get('Serial Number') || '')
-      ];
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
 
-      var mailtoUrl = 'mailto:sales@vikingx.com.tw'
-        + '?subject=' + encodeURIComponent('VikingX Bike Registration')
-        + '&body=' + encodeURIComponent(lines.join('\n'));
-
-      window.location.href = mailtoUrl;
+      var fd = new FormData(form);
+      emailjs.send('service_vikingx', 'template_dc4nbqy', {
+        subject:   'VikingX Bike Registration',
+        reply_to:  fd.get('Email1') || '',
+        body: [
+          'Full Name:     ' + (fd.get('Full name') || ''),
+          'Email:         ' + (fd.get('Email1') || ''),
+          'Phone:         ' + (fd.get('Phone') || ''),
+          'Serial Number: ' + (fd.get('Serial Number') || '')
+        ].join('\n')
+      })
+      .then(function () {
+        alertSuccess.removeAttribute('hidden');
+        alertDanger.setAttribute('hidden', 'hidden');
+        form.reset();
+      })
+      .catch(function () {
+        alertDanger.removeAttribute('hidden');
+        alertSuccess.setAttribute('hidden', 'hidden');
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="mobi-mbri mobi-mbri-letter mbr-iconfont mbr-iconfont-btn"></span> Register your bike';
+      });
     });
   })();
   </script>

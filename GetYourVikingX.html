@@ -387,7 +387,22 @@ We'll be in touch soon.</div>
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
-      emailjs.sendForm('service_vikingx', 'template_dc4nbqy', form)
+      var fd = new FormData(form);
+      emailjs.send('service_vikingx', 'template_dc4nbqy', {
+        subject:   'VikingX Consumer Inquiry',
+        reply_to:  fd.get('email') || '',
+        body: [
+          'Name:    ' + (fd.get('name') || ''),
+          'Email:   ' + (fd.get('email') || ''),
+          'Phone:   ' + (fd.get('Phone') || ''),
+          'Country: ' + (fd.get('Country') || ''),
+          'City:    ' + (fd.get('City') || ''),
+          'Source:  ' + (fd.get('How did you hear from us?') || ''),
+          '',
+          '--- Message ---',
+          fd.get('Message') || ''
+        ].join('\n')
+      })
       .then(function () {
         alertSuccess.removeAttribute('hidden');
         alertDanger.setAttribute('hidden', 'hidden');
