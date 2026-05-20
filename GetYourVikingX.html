@@ -285,7 +285,9 @@ Tell us a bit about you and we?l help you find your next setup.">
                 
                 <div class="mbr-form form-wrap card-wrap" data-form-type="formoid">
 <!--Formbuilder Form-->
-<form action="mailto:sales@vikingx.com.tw" method="POST" enctype="text/plain" class="mbr-form form-with-styler" data-form-title="VikingX Consumer">
+<form action="https://api.web3forms.com/submit" method="POST" class="mbr-form form-with-styler" data-form-title="VikingX Consumer">
+<input type="hidden" name="access_key" value="d5f37f27-f1d0-48e5-8909-d18740c5d20e">
+<input type="hidden" name="subject" value="VikingX Consumer Inquiry">
 <div class="row">
 <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">You?e all set. Time to ride.
 We?l be in touch soon.</div>
@@ -370,6 +372,10 @@ We?l be in touch soon.</div>
     var form = document.querySelector('form[data-form-title="VikingX Consumer"]');
     if (!form) return;
 
+    var alertSuccess = form.querySelector('[data-form-alert]');
+    var alertDanger  = form.querySelector('[data-form-alert-danger]');
+    var submitBtn    = form.querySelector('[type="submit"]');
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
@@ -378,26 +384,33 @@ We?l be in touch soon.</div>
         return;
       }
 
-      var formData = new FormData(form);
-      var lines = [
-        'New VikingX inquiry',
-        '',
-        'Name: ' + (formData.get('name') || ''),
-        'Email: ' + (formData.get('email') || ''),
-        'Phone/WhatsApp: ' + (formData.get('Phone') || ''),
-        'Country: ' + (formData.get('Country') || ''),
-        'City: ' + (formData.get('City') || ''),
-        'How did you hear from us?: ' + (formData.get('How did you hear from us?') || ''),
-        '',
-        'Message:',
-        formData.get('Message') || ''
-      ];
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
 
-      var mailtoUrl = 'mailto:sales@vikingx.com.tw'
-        + '?subject=' + encodeURIComponent('VikingX Consumer Inquiry')
-        + '&body=' + encodeURIComponent(lines.join('\n'));
-
-      window.location.href = mailtoUrl;
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function (response) {
+        if (response.ok) {
+          alertSuccess.removeAttribute('hidden');
+          alertDanger.setAttribute('hidden', 'hidden');
+          form.reset();
+        } else {
+          return response.json().then(function (data) {
+            throw new Error(data.errors ? data.errors.map(function(e){ return e.message; }).join(', ') : 'Server error');
+          });
+        }
+      })
+      .catch(function () {
+        alertDanger.removeAttribute('hidden');
+        alertSuccess.setAttribute('hidden', 'hidden');
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="mobi-mbri mobi-mbri-letter mbr-iconfont mbr-iconfont-btn"></span> Ride with us';
+      });
     });
   })();
   </script>
