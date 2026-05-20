@@ -285,9 +285,7 @@ Tell us a bit about you and we?l help you find your next setup.">
                 
                 <div class="mbr-form form-wrap card-wrap" data-form-type="formoid">
 <!--Formbuilder Form-->
-<form action="https://api.web3forms.com/submit" method="POST" class="mbr-form form-with-styler" data-form-title="VikingX Consumer">
-<input type="hidden" name="access_key" value="d5f37f27-f1d0-48e5-8909-d18740c5d20e">
-<input type="hidden" name="subject" value="VikingX Consumer Inquiry">
+<form class="mbr-form form-with-styler" data-form-title="VikingX Consumer">
 <div class="row">
 <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">You?e all set. Time to ride.
 We?l be in touch soon.</div>
@@ -361,6 +359,8 @@ We?l be in touch soon.</div>
 </section>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init({ publicKey: 'tfBHmUcBAfBXiLCY2' });</script>
   <script src="assets/web/assets/jquery/jquery.minc056.js?rnd=1777367577809"></script>
   <script src="assets/bootstrap/js/bootstrap.bundle.minc056.js?rnd=1777367577809"></script>
   <script src="assets/smoothscroll/smooth-scrollc056.js?rnd=1777367577809"></script>
@@ -387,21 +387,11 @@ We?l be in touch soon.</div>
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      })
-      .then(function (response) {
-        if (response.ok) {
-          alertSuccess.removeAttribute('hidden');
-          alertDanger.setAttribute('hidden', 'hidden');
-          form.reset();
-        } else {
-          return response.json().then(function (data) {
-            throw new Error(data.errors ? data.errors.map(function(e){ return e.message; }).join(', ') : 'Server error');
-          });
-        }
+      emailjs.sendForm('service_vikingx', 'template_dc4nbqy', form)
+      .then(function () {
+        alertSuccess.removeAttribute('hidden');
+        alertDanger.setAttribute('hidden', 'hidden');
+        form.reset();
       })
       .catch(function () {
         alertDanger.removeAttribute('hidden');
