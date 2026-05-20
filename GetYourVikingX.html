@@ -389,7 +389,7 @@ We'll be in touch soon.</div>
 
       var fd = new FormData(form);
       emailjs.send('service_vikingx', 'template_dc4nbqy', {
-        subject:   'VikingX Consumer Inquiry',
+        title:     'Consumer Inquiry',
         reply_to:  fd.get('email') || '',
         body: [
           'Name:    ' + (fd.get('name') || ''),

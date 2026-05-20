@@ -400,7 +400,7 @@ We'll be in touch soon.</div>
 
       var fd = new FormData(form);
       emailjs.send('service_vikingx', 'template_dc4nbqy', {
-        subject:   'VikingX Distributor Inquiry',
+        title:     'Distributor Inquiry',
         reply_to:  fd.get('Email1') || '',
         body: [
           'Full Name:         ' + (fd.get('Full Name') || ''),
