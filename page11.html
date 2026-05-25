@@ -401,6 +401,15 @@ Tell us a bit about you and we’ll help you find your next setup.">
     var alertDanger  = form.querySelector('[data-form-alert-danger]');
     var submitBtn    = form.querySelector('[type="submit"]');
 
+    function updateSubmitState() {
+      submitBtn.disabled = !form.checkValidity();
+    }
+    form.querySelectorAll('input, textarea, select').forEach(function (el) {
+      el.addEventListener('input', updateSubmitState);
+      el.addEventListener('change', updateSubmitState);
+    });
+    updateSubmitState();
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
@@ -428,13 +437,14 @@ Tell us a bit about you and we’ll help you find your next setup.">
         alertSuccess.removeAttribute('hidden');
         alertDanger.setAttribute('hidden', 'hidden');
         form.reset();
+        updateSubmitState();
       })
       .catch(function () {
         alertDanger.removeAttribute('hidden');
         alertSuccess.setAttribute('hidden', 'hidden');
+        updateSubmitState();
       })
       .finally(function () {
-        submitBtn.disabled = false;
         submitBtn.innerHTML = '<span class="mobi-mbri mobi-mbri-letter mbr-iconfont mbr-iconfont-btn"></span> Register your bike';
       });
     });
