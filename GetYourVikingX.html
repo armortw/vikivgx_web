@@ -358,8 +358,6 @@ Tell us a bit about you and we'lll help you find your next setup.">
 </section>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>emailjs.init({ publicKey: 'tfBHmUcBAfBXiLCY2' });</script>
   <script src="assets/web/assets/jquery/jquery.minc056.js?rnd=1777367577809"></script>
   <script src="assets/bootstrap/js/bootstrap.bundle.minc056.js?rnd=1777367577809"></script>
   <script src="assets/smoothscroll/smooth-scrollc056.js?rnd=1777367577809"></script>
@@ -396,20 +394,25 @@ Tell us a bit about you and we'lll help you find your next setup.">
       submitBtn.textContent = 'Sending…';
 
       var fd = new FormData(form);
-      emailjs.send('service_vikingx', 'template_dc4nbqy', {
-        title:     'Consumer Inquiry',
-        reply_to:  fd.get('email') || '',
-        body: [
-          'Name:    ' + (fd.get('name') || ''),
-          'Email:   ' + (fd.get('email') || ''),
-          'Phone:   ' + (fd.get('Phone') || ''),
-          'Country: ' + (fd.get('Country') || ''),
-          'City:    ' + (fd.get('City') || ''),
-          'Source:  ' + (fd.get('How did you hear from us?') || ''),
-          '',
-          '--- Message ---',
-          fd.get('Message') || ''
-        ].join('\n')
+      fetch('APPS_SCRIPT_URL', {
+        method: 'POST',
+        body: JSON.stringify({
+          sheet: 'Consumer',
+          row: [
+            new Date().toLocaleString(),
+            fd.get('name') || '',
+            fd.get('email') || '',
+            fd.get('Phone') || '',
+            fd.get('Country') || '',
+            fd.get('City') || '',
+            fd.get('How did you hear from us?') || '',
+            fd.get('Message') || ''
+          ]
+        })
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (!json.success) throw new Error(json.error || 'Error');
       })
       .then(function () {
         alertSuccess.removeAttribute('hidden');

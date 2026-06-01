@@ -369,8 +369,6 @@ Tell us about your business and let's explore new opportunities together.">
 </section>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>emailjs.init({ publicKey: 'tfBHmUcBAfBXiLCY2' });</script>
   <script src="assets/web/assets/jquery/jquery.min80ca.js?rnd=1777367578132"></script>
   <script src="assets/bootstrap/js/bootstrap.bundle.min80ca.js?rnd=1777367578132"></script>
   <script src="assets/smoothscroll/smooth-scroll80ca.js?rnd=1777367578132"></script>
@@ -407,22 +405,27 @@ Tell us about your business and let's explore new opportunities together.">
       submitBtn.textContent = 'Sending…';
 
       var fd = new FormData(form);
-      emailjs.send('service_vikingx', 'template_dc4nbqy', {
-        title:     'Distributor Inquiry',
-        reply_to:  fd.get('Email1') || '',
-        body: [
-          'Full Name:         ' + (fd.get('Full Name') || ''),
-          'Company Name:      ' + (fd.get('Company Name') || ''),
-          'Email:             ' + (fd.get('Email1') || ''),
-          'Phone:             ' + (fd.get('Phone') || ''),
-          'Country:           ' + (fd.get('Country') || ''),
-          'City:              ' + (fd.get('City') || ''),
-          'Type of business:  ' + (fd.get('Type of business') || ''),
-          'Years in business: ' + (fd.get('Years in business') || ''),
-          '',
-          '--- Message ---',
-          fd.get('Message') || ''
-        ].join('\n')
+      fetch('APPS_SCRIPT_URL', {
+        method: 'POST',
+        body: JSON.stringify({
+          sheet: 'Distributor',
+          row: [
+            new Date().toLocaleString(),
+            fd.get('Full Name') || '',
+            fd.get('Company Name') || '',
+            fd.get('Email1') || '',
+            fd.get('Phone') || '',
+            fd.get('Country') || '',
+            fd.get('City') || '',
+            fd.get('Type of business') || '',
+            fd.get('Years in business') || '',
+            fd.get('Message') || ''
+          ]
+        })
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (!json.success) throw new Error(json.error || 'Error');
       })
       .then(function () {
         alertSuccess.removeAttribute('hidden');
