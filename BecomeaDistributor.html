@@ -405,7 +405,7 @@ Tell us about your business and let's explore new opportunities together.">
       submitBtn.textContent = 'Sending…';
 
       var fd = new FormData(form);
-      fetch('APPS_SCRIPT_URL', {
+      fetch('https://script.google.com/macros/s/AKfycbzJpGpqIRPpEBmxys5INxFBab32OO3Bye5EgUy5iBeLE9zskd1hjGQMuKOmL6oE9Tsq/exec', {
         method: 'POST',
         body: JSON.stringify({
           sheet: 'Distributor',

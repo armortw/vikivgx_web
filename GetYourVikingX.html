@@ -394,7 +394,7 @@ Tell us a bit about you and we'lll help you find your next setup.">
       submitBtn.textContent = 'Sending…';
 
       var fd = new FormData(form);
-      fetch('APPS_SCRIPT_URL', {
+      fetch('https://script.google.com/macros/s/AKfycbzJpGpqIRPpEBmxys5INxFBab32OO3Bye5EgUy5iBeLE9zskd1hjGQMuKOmL6oE9Tsq/exec', {
         method: 'POST',
         body: JSON.stringify({
           sheet: 'Consumer',
