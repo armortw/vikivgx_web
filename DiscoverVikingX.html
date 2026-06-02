@@ -521,7 +521,8 @@ From day one, the mission has been simple: build components designed for riders 
         'Bikecr': [-38.5270,-3.7327],
         'NR da Silva': [-49.3044,-25.3211],
         'Nick teste': [-53.3807,-31.5783],
-        'Luiz': [-50.0739,-23.0408]
+        'Luiz': [-50.0739,-23.0408],
+        'ISAPA': [-46.6388,-23.5489]
       },
       'Costa Rica': {
         'Monkey bikes': [-84.0907,9.9281]
@@ -543,9 +544,9 @@ From day one, the mission has been simple: build components designed for riders 
     var currentDistributors = {};
 
     map.on('load', function(){
-      // 直接从 Google Sheets 获取数据 (Distributor 分页)
+      // 直接从 Google Sheets 获取数据 (Distributor 分页, gid=1803850764)
       var sheetId = '1YGzaY5fTNHanwvSy2TI9LP13eBYKgdbFP7Jae_nPsW8';
-      var csvUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv&gid=0';
+      var csvUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv&gid=1803850764';
 
       fetch(csvUrl)
         .then(function(r){ return r.text(); })
@@ -637,6 +638,7 @@ From day one, the mission has been simple: build components designed for riders 
             countryData[key] = features.filter(function(f){ return f.properties.countryKey === key; });
           });
           currentDistributors = countryData;
+          window.__allFeatures = features;
 
           // 动态更新左侧数字徽章
           document.querySelectorAll('.findus-country').forEach(function(item){
@@ -649,8 +651,8 @@ From day one, the mission has been simple: build components designed for riders 
             }
           });
 
-          // 初始化地图
-          map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:countryData.argentina}});
+          // 初始化地图 - 显示所有经销商
+          map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:features}});
 
           map.addLayer({
             id:'dist-glow', type:'circle', source:'distributors',
@@ -684,6 +686,32 @@ From day one, the mission has been simple: build components designed for riders 
             map.getCanvas().style.cursor = '';
             popup.remove();
           });
+
+          // 初始自动缩放以显示所有经销商
+          if(features.length > 0){
+            var bounds = new maplibregl.LngLatBounds();
+            features.forEach(function(f){ bounds.extend(f.geometry.coordinates); });
+            // 默认选中第一个有数据的国家
+            var firstWithData = ['argentina','brasil','costarica','turkiye'].find(function(k){
+              return countryData[k] && countryData[k].length > 0;
+            });
+            if(features.length === 1){
+              map.flyTo({center: features[0].geometry.coordinates, zoom: 6, duration: 1200});
+            } else {
+              map.fitBounds(bounds, {padding: 60, duration: 1200, maxZoom: 7});
+            }
+            // 更新左侧选中状态到第一个有数据的国家
+            if(firstWithData){
+              document.querySelectorAll('.findus-country').forEach(function(item){
+                var isActive = item.getAttribute('data-country') === firstWithData;
+                item.classList.toggle('active', isActive);
+                item.style.borderLeftColor = isActive ? '#ff2d87' : 'transparent';
+                item.style.background = isActive ? 'rgba(255,45,135,0.12)' : 'rgba(255,255,255,0.04)';
+                var b = item.querySelector('span:last-child');
+                if(b) b.style.background = isActive ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+              });
+            }
+          }
 
         })
         .catch(function(err){ console.error('Load error:', err); });
