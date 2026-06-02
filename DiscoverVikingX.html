@@ -543,18 +543,60 @@ From day one, the mission has been simple: build components designed for riders 
     var currentDistributors = {};
 
     map.on('load', function(){
-      // 从 Google Sheets 获取数据
-      fetch(APPS_URL)
-        .then(function(r){ return r.json(); })
-        .then(function(json){
-          if(!json.success || !json.data) {
-            console.error('Failed to load distributors');
-            return;
+      // 直接从 Google Sheets 获取数据 (Distributor 分页)
+      var sheetId = '1YGzaY5fTNHanwvSy2TI9LP13eBYKgdbFP7Jae_nPsW8';
+      var csvUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv&gid=0';
+
+      fetch(csvUrl)
+        .then(function(r){ return r.text(); })
+        .then(function(csv){
+          // 简单 CSV 解析 (处理引用字段)
+          function parseCSV(text) {
+            var lines = text.split(/\r?\n/);
+            var headers = [];
+            var rows = [];
+
+            // 解析头部
+            var headerLine = lines[0];
+            headers = headerLine.split(',').map(function(h){
+              return h.trim().replace(/^"|"$/g, '');
+            });
+
+            // 解析数据行
+            for(var i=1; i<lines.length; i++){
+              if(!lines[i].trim()) continue;
+              var cells = [];
+              var current = '';
+              var inQuotes = false;
+
+              for(var j=0; j<lines[i].length; j++){
+                var char = lines[i][j];
+                if(char === '"') {
+                  inQuotes = !inQuotes;
+                } else if(char === ',' && !inQuotes) {
+                  cells.push(current.trim().replace(/^"|"$/g, ''));
+                  current = '';
+                } else {
+                  current += char;
+                }
+              }
+              cells.push(current.trim().replace(/^"|"$/g, ''));
+
+              var row = {};
+              headers.forEach(function(h, idx){
+                row[h] = cells[idx] || '';
+              });
+              if(row['Country']) rows.push(row);
+            }
+            return rows;
           }
+
+          var rows = parseCSV(csv);
+          console.log('Loaded ' + rows.length + ' distributors');
 
           // 按国家分组
           var byCountry = {};
-          json.data.forEach(function(d){
+          rows.forEach(function(d){
             var country = d['Country'] || '';
             if(!byCountry[country]) byCountry[country] = [];
             byCountry[country].push(d);
