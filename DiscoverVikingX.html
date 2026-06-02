@@ -624,6 +624,7 @@ From day one, the mission has been simple: build components designed for riders 
                     country: country,
                     type: dist['Type of business'] || '',
                     years: dist['Years in business'] || '',
+                    address: dist['Distributor Address'] || '',
                     countryKey: key
                   }
                 });
@@ -666,6 +667,18 @@ From day one, the mission has been simple: build components designed for riders 
             }
           });
 
+          // 构建 Google Maps 链接
+          function buildMapsUrl(p, coords){
+            var parts = [];
+            if(p.company) parts.push(p.company);
+            if(p.address) parts.push(p.address);
+            if(p.city) parts.push(p.city);
+            if(p.country) parts.push(p.country);
+            var query = parts.length ? encodeURIComponent(parts.join(', '))
+                                     : (coords[1] + ',' + coords[0]);
+            return 'https://www.google.com/maps/search/?api=1&query=' + query;
+          }
+
           map.on('mouseenter','dist-dots', function(e){
             map.getCanvas().style.cursor = 'pointer';
             var p = e.features[0].properties;
@@ -677,6 +690,7 @@ From day one, the mission has been simple: build components designed for riders 
             if(p.email) html += '<small style="display:block;color:#aaa;"><strong>Email:</strong> '+p.email+'</small>';
             if(p.type) html += '<small style="display:block;color:#aaa;"><strong>Tipo:</strong> '+p.type+'</small>';
             if(p.years) html += '<small style="display:block;color:#aaa;"><strong>Años:</strong> '+p.years+'</small>';
+            html += '<span style="display:block;margin-top:6px;color:#ff2d87;font-size:0.8em;font-weight:700;">📍 Click to open in Google Maps</span>';
             html += '</div>';
             popup.setLngLat(e.features[0].geometry.coordinates)
                  .setHTML(html)
@@ -685,6 +699,13 @@ From day one, the mission has been simple: build components designed for riders 
           map.on('mouseleave','dist-dots', function(){
             map.getCanvas().style.cursor = '';
             popup.remove();
+          });
+
+          // 点击红点 -> 另开视窗跳到 Google Maps
+          map.on('click','dist-dots', function(e){
+            var p = e.features[0].properties;
+            var coords = e.features[0].geometry.coordinates;
+            window.open(buildMapsUrl(p, coords), '_blank', 'noopener');
           });
 
           // 初始自动缩放以显示所有经销商
