@@ -502,7 +502,7 @@ From day one, the mission has been simple: build components designed for riders 
       'turkiye': {center:[35.0,39.0], zoom:5.5}
     };
 
-    // 硬编码坐标（备用，当 Sheets 数据中没有坐标时使用）
+    // 坐标备用表（按 Distributor 列名匹配）
     var FALLBACK_COORDS = {
       'Argentina': {
         'Bicicletería HITO': [-63.7568,-35.6561],
@@ -566,13 +566,14 @@ From day one, the mission has been simple: build components designed for riders 
             var key = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', Türkiye:'turkiye'}[country];
             if(byCountry[country]){
               byCountry[country].forEach(function(dist){
-                var coords = FALLBACK_COORDS[country][dist['Company Name']] ||
+                var distName = dist['Distributor'] || dist['Company Name'] || '';
+                var coords = FALLBACK_COORDS[country][distName] ||
                            (country === 'Argentina' ? [-63,-34] : country === 'Brasil' ? [-51,-15] : country === 'Costa Rica' ? [-84,10] : [35,39]);
                 features.push({
                   type:'Feature',
                   geometry:{type:'Point', coordinates:coords},
                   properties:{
-                    company: dist['Company Name'] || '',
+                    company: distName,
                     fullName: dist['Full Name'] || '',
                     email: dist['Email'] || '',
                     phone: dist['Phone'] || '',
@@ -594,6 +595,17 @@ From day one, the mission has been simple: build components designed for riders 
             countryData[key] = features.filter(function(f){ return f.properties.countryKey === key; });
           });
           currentDistributors = countryData;
+
+          // 动态更新左侧数字徽章
+          document.querySelectorAll('.findus-country').forEach(function(item){
+            var key = item.getAttribute('data-country');
+            var count = countryData[key] ? countryData[key].length : 0;
+            var badge = item.querySelector('span:last-child');
+            if(badge) {
+              badge.textContent = count;
+              badge.style.background = item.classList.contains('active') ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+            }
+          });
 
           // 初始化地图
           map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:countryData.argentina}});
