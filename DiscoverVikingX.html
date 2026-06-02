@@ -493,98 +493,153 @@ From day one, the mission has been simple: build components designed for riders 
   <script>
   (function(){
     var MAPTILER_KEY = 'DefBTTLTafgtMnj6fUbZ';
+    var APPS_URL = 'https://script.google.com/macros/s/AKfycbwHq1SVcXIY5qz0l_EyS299DLZnQn62IRmtnNMDTG2gDwq64LuSXb9Y22HoKE8NFUwh/exec?mode=distributors';
 
-    var COUNTRIES = {
-      argentina: {
-        center:[-63,-34], zoom:4.5,
-        features:[
-          {name:'Bicicletería HITO',      city:'General Pico, La Pampa',    coords:[-63.7568,-35.6561]},
-          {name:'Eleven Bikes',            city:'Cordoba',                    coords:[-64.1888,-31.4201]},
-          {name:'Bicicleteria Laser',      city:'Buenos Aires',               coords:[-58.3816,-34.6037]},
-          {name:'Bicicleteria el aleman',  city:'San José de la esquina',     coords:[-61.7500,-33.0833]},
-          {name:'Bicicleteriaelgringo',    city:'Mendoza',                    coords:[-68.8272,-32.8908]},
-          {name:'Bike cycle',              city:'Despeñaderos, Córdoba',      coords:[-64.3188,-31.8507]},
-          {name:'Krowbikeco',              city:'Rosario',                    coords:[-60.6505,-32.9442]},
-          {name:'BICICLETERIA ARECO',      city:'Monte caseros, Corrientes',  coords:[-57.6440,-30.2573]}
-        ]
-      },
-      brasil:{
-        center:[-51,-15], zoom:3.8,
-        features:[
-          {name:'Gabriel peças',    city:'Guaratuba, Paraná',        coords:[-48.5756,-25.8817]},
-          {name:'Casa do ciclista', city:'Lajeado, RS',              coords:[-51.9614,-29.4656]},
-          {name:'Davi Lucas',       city:'São Luís do Quitunde, AL', coords:[-35.4167,-9.2500]},
-          {name:'Bikecr',           city:'Fortaleza, Ceará',         coords:[-38.5270,-3.7327]},
-          {name:'NR da Silva',      city:'Almirante Tamandaré, PR',  coords:[-49.3044,-25.3211]},
-          {name:'Nick teste',       city:'Pinheiro Machado, RS',     coords:[-53.3807,-31.5783]},
-          {name:'Luiz',             city:'Cambara, Paraná',          coords:[-50.0739,-23.0408]}
-        ]
-      },
-      costarica:{
-        center:[-84.09,9.93], zoom:9,
-        features:[
-          {name:'Monkey bikes', city:'San José', coords:[-84.0907,9.9281]}
-        ]
-      },
-      turkiye:{
-        center:[35.0,39.0], zoom:5.5,
-        features:[]
-      }
+    var COUNTRY_COORDS = {
+      'argentina': {center:[-63,-34], zoom:4.5},
+      'brasil': {center:[-51,-15], zoom:3.8},
+      'costarica': {center:[-84.09,9.93], zoom:9},
+      'turkiye': {center:[35.0,39.0], zoom:5.5}
     };
 
-    function toGeoJSON(features){
-      return {
-        type:'FeatureCollection',
-        features: features.map(function(f){
-          return {type:'Feature', geometry:{type:'Point',coordinates:f.coords},
-                  properties:{name:f.name, city:f.city}};
-        })
-      };
-    }
+    // 硬编码坐标（备用，当 Sheets 数据中没有坐标时使用）
+    var FALLBACK_COORDS = {
+      'Argentina': {
+        'Bicicletería HITO': [-63.7568,-35.6561],
+        'Eleven Bikes': [-64.1888,-31.4201],
+        'Bicicleteria Laser': [-58.3816,-34.6037],
+        'Bicicleteria el aleman': [-61.7500,-33.0833],
+        'Bicicleteriaelgringo': [-68.8272,-32.8908],
+        'Bike cycle': [-64.3188,-31.8507],
+        'Krowbikeco': [-60.6505,-32.9442],
+        'BICICLETERIA ARECO': [-57.6440,-30.2573]
+      },
+      'Brasil': {
+        'Gabriel peças': [-48.5756,-25.8817],
+        'Casa do ciclista': [-51.9614,-29.4656],
+        'Davi Lucas': [-35.4167,-9.2500],
+        'Bikecr': [-38.5270,-3.7327],
+        'NR da Silva': [-49.3044,-25.3211],
+        'Nick teste': [-53.3807,-31.5783],
+        'Luiz': [-50.0739,-23.0408]
+      },
+      'Costa Rica': {
+        'Monkey bikes': [-84.0907,9.9281]
+      },
+      'Türkiye': {}
+    };
 
     var map = new maplibregl.Map({
       container:'findus-map',
       style:'https://api.maptiler.com/maps/streets-v2-dark/style.json?key='+MAPTILER_KEY,
-      center: COUNTRIES.argentina.center,
-      zoom:   COUNTRIES.argentina.zoom,
+      center: COUNTRY_COORDS.argentina.center,
+      zoom:   COUNTRY_COORDS.argentina.zoom,
       scrollZoom: false
     });
 
     map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
 
     var popup = new maplibregl.Popup({closeButton:false, closeOnClick:false, offset:14});
+    var currentDistributors = {};
 
     map.on('load', function(){
-      map.addSource('distributors',{type:'geojson', data: toGeoJSON(COUNTRIES.argentina.features)});
+      // 从 Google Sheets 获取数据
+      fetch(APPS_URL)
+        .then(function(r){ return r.json(); })
+        .then(function(json){
+          if(!json.success || !json.data) {
+            console.error('Failed to load distributors');
+            return;
+          }
 
-      map.addLayer({
-        id:'dist-glow', type:'circle', source:'distributors',
-        paint:{'circle-radius':18,'circle-color':'#ff2d87','circle-opacity':0.18,'circle-blur':1}
-      });
-      map.addLayer({
-        id:'dist-dots', type:'circle', source:'distributors',
-        paint:{
-          'circle-radius':9,'circle-color':'#ff2d87',
-          'circle-stroke-width':2,'circle-stroke-color':'#ffffff','circle-opacity':1
-        }
-      });
+          // 按国家分组
+          var byCountry = {};
+          json.data.forEach(function(d){
+            var country = d['Country'] || '';
+            if(!byCountry[country]) byCountry[country] = [];
+            byCountry[country].push(d);
+          });
 
-      map.on('mouseenter','dist-dots', function(e){
-        map.getCanvas().style.cursor = 'pointer';
-        var p = e.features[0].properties;
-        popup.setLngLat(e.features[0].geometry.coordinates)
-             .setHTML('<strong>'+p.name+'</strong><small>'+p.city+'</small>')
-             .addTo(map);
-      });
-      map.on('mouseleave','dist-dots', function(){
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-      });
+          // 构建 GeoJSON features
+          var features = [];
+          ['Argentina','Brasil','Costa Rica','Türkiye'].forEach(function(country){
+            var key = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', Türkiye:'turkiye'}[country];
+            if(byCountry[country]){
+              byCountry[country].forEach(function(dist){
+                var coords = FALLBACK_COORDS[country][dist['Company Name']] ||
+                           (country === 'Argentina' ? [-63,-34] : country === 'Brasil' ? [-51,-15] : country === 'Costa Rica' ? [-84,10] : [35,39]);
+                features.push({
+                  type:'Feature',
+                  geometry:{type:'Point', coordinates:coords},
+                  properties:{
+                    company: dist['Company Name'] || '',
+                    fullName: dist['Full Name'] || '',
+                    email: dist['Email'] || '',
+                    phone: dist['Phone'] || '',
+                    city: dist['City'] || '',
+                    country: country,
+                    type: dist['Type of business'] || '',
+                    years: dist['Years in business'] || '',
+                    countryKey: key
+                  }
+                });
+              });
+            }
+          });
+
+          // 创建国家分组 features
+          var countryData = {};
+          ['argentina','brasil','costarica','turkiye'].forEach(function(key){
+            var country = {argentina:'Argentina',brasil:'Brasil',costarica:'Costa Rica',turkiye:'Türkiye'}[key];
+            countryData[key] = features.filter(function(f){ return f.properties.countryKey === key; });
+          });
+          currentDistributors = countryData;
+
+          // 初始化地图
+          map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:countryData.argentina}});
+
+          map.addLayer({
+            id:'dist-glow', type:'circle', source:'distributors',
+            paint:{'circle-radius':18,'circle-color':'#ff2d87','circle-opacity':0.18,'circle-blur':1}
+          });
+          map.addLayer({
+            id:'dist-dots', type:'circle', source:'distributors',
+            paint:{
+              'circle-radius':9,'circle-color':'#ff2d87',
+              'circle-stroke-width':2,'circle-stroke-color':'#ffffff','circle-opacity':1
+            }
+          });
+
+          map.on('mouseenter','dist-dots', function(e){
+            map.getCanvas().style.cursor = 'pointer';
+            var p = e.features[0].properties;
+            var html = '<div style="font-size:0.9em;line-height:1.4;">' +
+              '<strong style="color:#ff2d87;display:block;margin-bottom:3px;">'+p.company+'</strong>' +
+              '<span style="color:#ccc;font-size:0.85em;display:block;margin-bottom:4px;">'+p.city+', '+p.country+'</span>';
+            if(p.fullName) html += '<small style="display:block;color:#aaa;"><strong>Contacto:</strong> '+p.fullName+'</small>';
+            if(p.phone) html += '<small style="display:block;color:#aaa;"><strong>Tel:</strong> '+p.phone+'</small>';
+            if(p.email) html += '<small style="display:block;color:#aaa;"><strong>Email:</strong> '+p.email+'</small>';
+            if(p.type) html += '<small style="display:block;color:#aaa;"><strong>Tipo:</strong> '+p.type+'</small>';
+            if(p.years) html += '<small style="display:block;color:#aaa;"><strong>Años:</strong> '+p.years+'</small>';
+            html += '</div>';
+            popup.setLngLat(e.features[0].geometry.coordinates)
+                 .setHTML(html)
+                 .addTo(map);
+          });
+          map.on('mouseleave','dist-dots', function(){
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+          });
+
+        })
+        .catch(function(err){ console.error('Load error:', err); });
     });
 
     function loadCountry(key){
-      var d = COUNTRIES[key];
-      map.getSource('distributors').setData(toGeoJSON(d.features));
+      var d = COUNTRY_COORDS[key];
+      if(currentDistributors[key]){
+        map.getSource('distributors').setData({type:'FeatureCollection',features:currentDistributors[key]});
+      }
       map.flyTo({center:d.center, zoom:d.zoom, duration:1400, essential:true});
     }
 
