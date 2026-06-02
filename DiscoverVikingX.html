@@ -420,6 +420,86 @@ From day one, the mission has been simple: build components designed for riders 
     </div>
 </section>
 
+<section id="findus-section" style="background-color:rgb(18,18,18);padding:5rem 0;">
+  <div class="container">
+
+    <!-- Title -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 text-center">
+        <h2 class="mbr-fonts-style display-2" style="color:#ffffff;letter-spacing:0.12em;">FIND US</h2>
+        <p class="mbr-fonts-style display-7" style="color:rgba(255,255,255,0.55);margin-top:0.5rem;">Our distributors around the world</p>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="row justify-content-center align-items-stretch g-4">
+
+      <!-- Left: Country List -->
+      <div class="col-12 col-lg-4">
+        <ul id="findus-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;">
+
+          <li class="findus-country active" data-map="https://maps.google.com/maps?q=Argentina&output=embed&z=5"
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid #ff2d87;background:rgba(255,45,135,0.12);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+            <span style="font-size:2.2rem;line-height:1;">🇦🇷</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Argentina</span>
+          </li>
+
+          <li class="findus-country" data-map="https://maps.google.com/maps?q=Brazil&output=embed&z=5"
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+            <span style="font-size:2.2rem;line-height:1;">🇧🇷</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Brasil</span>
+          </li>
+
+          <li class="findus-country" data-map="https://maps.google.com/maps?q=Costa+Rica&output=embed&z=7"
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+            <span style="font-size:2.2rem;line-height:1;">🇨🇷</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Costa Rica</span>
+          </li>
+
+          <li class="findus-country" data-map="https://maps.google.com/maps?q=Turkey&output=embed&z=6"
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+            <span style="font-size:2.2rem;line-height:1;">🇹🇷</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Türkiye</span>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- Right: Google Map -->
+      <div class="col-12 col-lg-8">
+        <iframe id="findus-map"
+          src="https://maps.google.com/maps?q=Argentina&output=embed&z=5"
+          width="100%" height="450"
+          style="border:0;border-radius:12px;display:block;"
+          allowfullscreen loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var items = document.querySelectorAll('.findus-country');
+    var mapFrame = document.getElementById('findus-map');
+    items.forEach(function(item){
+      item.addEventListener('click', function(){
+        items.forEach(function(i){
+          i.style.borderLeftColor = 'transparent';
+          i.style.background = 'rgba(255,255,255,0.04)';
+          i.classList.remove('active');
+        });
+        item.style.borderLeftColor = '#ff2d87';
+        item.style.background = 'rgba(255,45,135,0.12)';
+        item.classList.add('active');
+        mapFrame.src = item.getAttribute('data-map');
+      });
+    });
+  })();
+  </script>
+</section>
+
 <section data-bs-version="5.1" class="footer01 rebootm5 cid-vh0IdRlHBr" once="footers" id="footer01-u">
     
 
