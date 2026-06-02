@@ -451,31 +451,31 @@ From day one, the mission has been simple: build components designed for riders 
         <ul id="findus-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;">
 
           <li class="findus-country active" data-country="argentina"
-              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid #ff2d87;background:rgba(255,45,135,0.12);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid #ff2d87;background:#ffc2dd;display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇦🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Argentina</span>
+            <span class="mbr-fonts-style display-7" style="color:#5c1a35;font-weight:700;font-size:1.1rem;flex:1;">Argentina</span>
             <span style="background:#ff2d87;color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
           </li>
 
           <li class="findus-country" data-country="brasil"
-              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:#ffe4f0;display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇧🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Brasil</span>
-            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
+            <span class="mbr-fonts-style display-7" style="color:#5c1a35;font-weight:700;font-size:1.1rem;flex:1;">Brasil</span>
+            <span style="background:#ff2d87;color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
           </li>
 
           <li class="findus-country" data-country="costarica"
-              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:#ffe4f0;display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇨🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Costa Rica</span>
-            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
+            <span class="mbr-fonts-style display-7" style="color:#5c1a35;font-weight:700;font-size:1.1rem;flex:1;">Costa Rica</span>
+            <span style="background:#ff2d87;color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
           </li>
 
           <li class="findus-country" data-country="turkiye"
-              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
+              style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:#ffe4f0;display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇹🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Türkiye</span>
-            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
+            <span class="mbr-fonts-style display-7" style="color:#5c1a35;font-weight:700;font-size:1.1rem;flex:1;">Turkey</span>
+            <span style="background:#ff2d87;color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
           </li>
 
         </ul>
@@ -594,9 +594,9 @@ From day one, the mission has been simple: build components designed for riders 
           // 国家中心点（geocode 失败时的备用）
           var COUNTRY_CENTER = {
             'Argentina':[-63,-34], 'Brasil':[-51,-15],
-            'Costa Rica':[-84,10], 'Türkiye':[35,39]
+            'Costa Rica':[-84,10], 'Türkiye':[35,39], 'Turkey':[35,39]
           };
-          var COUNTRY_KEY = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', 'Türkiye':'turkiye'};
+          var COUNTRY_KEY = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', 'Türkiye':'turkiye', 'Turkey':'turkiye'};
 
           // 对每一行做地理编码后构建 features
           Promise.all(rows.map(function(d){
@@ -632,7 +632,7 @@ From day one, the mission has been simple: build components designed for riders 
               var badge = item.querySelector('span:last-child');
               if(badge) {
                 badge.textContent = count;
-                badge.style.background = item.classList.contains('active') ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+                badge.style.background = '#ff2d87';
               }
             });
 
@@ -705,9 +705,9 @@ From day one, the mission has been simple: build components designed for riders 
                   var isActive = item.getAttribute('data-country') === firstWithData;
                   item.classList.toggle('active', isActive);
                   item.style.borderLeftColor = isActive ? '#ff2d87' : 'transparent';
-                  item.style.background = isActive ? 'rgba(255,45,135,0.12)' : 'rgba(255,255,255,0.04)';
+                  item.style.background = isActive ? '#ffc2dd' : '#ffe4f0';
                   var b = item.querySelector('span:last-child');
-                  if(b) b.style.background = isActive ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+                  if(b) b.style.background = '#ff2d87';
                 });
               }
             }
@@ -730,13 +730,13 @@ From day one, the mission has been simple: build components designed for riders 
       item.addEventListener('click', function(){
         items.forEach(function(i){
           i.style.borderLeftColor='transparent';
-          i.style.background='rgba(255,255,255,0.04)';
+          i.style.background='#ffe4f0';
           i.classList.remove('active');
           var b=i.querySelector('span:last-child');
-          if(b) b.style.background='rgba(255,255,255,0.15)';
+          if(b) b.style.background='#ff2d87';
         });
         item.style.borderLeftColor='#ff2d87';
-        item.style.background='rgba(255,45,135,0.12)';
+        item.style.background='#ffc2dd';
         item.classList.add('active');
         var b=item.querySelector('span:last-child');
         if(b) b.style.background='#ff2d87';
