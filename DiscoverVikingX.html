@@ -655,17 +655,33 @@ From day one, the mission has been simple: build components designed for riders 
           // 初始化地图 - 显示所有经销商
           map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:features}});
 
+          // 粉红光晕圈（作为 LOGO 背景，让标记更醒目）
           map.addLayer({
             id:'dist-glow', type:'circle', source:'distributors',
-            paint:{'circle-radius':18,'circle-color':'#ff2d87','circle-opacity':0.18,'circle-blur':1}
+            paint:{'circle-radius':22,'circle-color':'#ff2d87','circle-opacity':0.22,'circle-blur':0.9}
           });
           map.addLayer({
-            id:'dist-dots', type:'circle', source:'distributors',
-            paint:{
-              'circle-radius':9,'circle-color':'#ff2d87',
-              'circle-stroke-width':2,'circle-stroke-color':'#ffffff','circle-opacity':1
-            }
+            id:'dist-halo', type:'circle', source:'distributors',
+            paint:{'circle-radius':14,'circle-color':'#ff2d87','circle-opacity':0.9}
           });
+
+          // 用 VikingX LOGO 作为标记图示
+          var logoImg = new Image();
+          logoImg.onload = function(){
+            if(!map.hasImage('vikingx-logo')) {
+              map.addImage('vikingx-logo', logoImg);
+            }
+            map.addLayer({
+              id:'dist-dots', type:'symbol', source:'distributors',
+              layout:{
+                'icon-image':'vikingx-logo',
+                'icon-size':0.022,
+                'icon-allow-overlap':true,
+                'icon-ignore-placement':true
+              }
+            });
+          };
+          logoImg.src = 'assets/images/logo-h_mo29ompq.png';
 
           // 构建 Google Maps 链接
           function buildMapsUrl(p, coords){
