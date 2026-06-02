@@ -502,34 +502,6 @@ From day one, the mission has been simple: build components designed for riders 
       'turkiye': {center:[35.0,39.0], zoom:5.5}
     };
 
-    // 坐标备用表（按 Distributor 列名匹配）
-    var FALLBACK_COORDS = {
-      'Argentina': {
-        'Bicicletería HITO': [-63.7568,-35.6561],
-        'Eleven Bikes': [-64.1888,-31.4201],
-        'Bicicleteria Laser': [-58.3816,-34.6037],
-        'Bicicleteria el aleman': [-61.7500,-33.0833],
-        'Bicicleteriaelgringo': [-68.8272,-32.8908],
-        'Bike cycle': [-64.3188,-31.8507],
-        'Krowbikeco': [-60.6505,-32.9442],
-        'BICICLETERIA ARECO': [-57.6440,-30.2573]
-      },
-      'Brasil': {
-        'Gabriel peças': [-48.5756,-25.8817],
-        'Casa do ciclista': [-51.9614,-29.4656],
-        'Davi Lucas': [-35.4167,-9.2500],
-        'Bikecr': [-38.5270,-3.7327],
-        'NR da Silva': [-49.3044,-25.3211],
-        'Nick teste': [-53.3807,-31.5783],
-        'Luiz': [-50.0739,-23.0408],
-        'ISAPA': [-46.6388,-23.5489]
-      },
-      'Costa Rica': {
-        'Monkey bikes': [-84.0907,9.9281]
-      },
-      'Türkiye': {}
-    };
-
     var map = new maplibregl.Map({
       container:'findus-map',
       style:'https://api.maptiler.com/maps/streets-v2-dark/style.json?key='+MAPTILER_KEY,
@@ -603,152 +575,143 @@ From day one, the mission has been simple: build components designed for riders 
             byCountry[country].push(d);
           });
 
-          // 构建 GeoJSON features
-          var features = [];
-          ['Argentina','Brasil','Costa Rica','Türkiye'].forEach(function(country){
-            var key = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', Türkiye:'turkiye'}[country];
-            if(byCountry[country]){
-              byCountry[country].forEach(function(dist){
-                var distName = dist['Distributor'] || dist['Company Name'] || '';
-                var coords = FALLBACK_COORDS[country][distName] ||
-                           (country === 'Argentina' ? [-63,-34] : country === 'Brasil' ? [-51,-15] : country === 'Costa Rica' ? [-84,10] : [35,39]);
-                features.push({
-                  type:'Feature',
-                  geometry:{type:'Point', coordinates:coords},
-                  properties:{
-                    company: distName,
-                    fullName: dist['Full Name'] || '',
-                    email: dist['Email'] || '',
-                    phone: dist['Phone'] || '',
-                    city: dist['City'] || '',
-                    country: country,
-                    type: dist['Type of business'] || '',
-                    years: dist['Years in business'] || '',
-                    address: dist['Distributor Address'] || '',
-                    countryKey: key
-                  }
-                });
-              });
-            }
-          });
+          // 地理编码：用 City, State/Province, Country 查询坐标
+          function geocode(row){
+            var parts = [row['City'], row['State/Province'], row['Country']].filter(Boolean);
+            var q = parts.join(', ');
+            if(!q) return Promise.resolve(null);
+            var url = 'https://api.maptiler.com/geocoding/' + encodeURIComponent(q) +
+                      '.json?key=' + MAPTILER_KEY + '&limit=1';
+            return fetch(url)
+              .then(function(r){ return r.json(); })
+              .then(function(j){
+                if(j.features && j.features.length) return j.features[0].center; // [lng,lat]
+                return null;
+              })
+              .catch(function(){ return null; });
+          }
 
-          // 创建国家分组 features
-          var countryData = {};
-          ['argentina','brasil','costarica','turkiye'].forEach(function(key){
-            var country = {argentina:'Argentina',brasil:'Brasil',costarica:'Costa Rica',turkiye:'Türkiye'}[key];
-            countryData[key] = features.filter(function(f){ return f.properties.countryKey === key; });
-          });
-          currentDistributors = countryData;
-          window.__allFeatures = features;
+          // 国家中心点（geocode 失败时的备用）
+          var COUNTRY_CENTER = {
+            'Argentina':[-63,-34], 'Brasil':[-51,-15],
+            'Costa Rica':[-84,10], 'Türkiye':[35,39]
+          };
+          var COUNTRY_KEY = {Argentina:'argentina', Brasil:'brasil', 'Costa Rica':'costarica', 'Türkiye':'turkiye'};
 
-          // 动态更新左侧数字徽章
-          document.querySelectorAll('.findus-country').forEach(function(item){
-            var key = item.getAttribute('data-country');
-            var count = countryData[key] ? countryData[key].length : 0;
-            var badge = item.querySelector('span:last-child');
-            if(badge) {
-              badge.textContent = count;
-              badge.style.background = item.classList.contains('active') ? '#ff2d87' : 'rgba(255,255,255,0.15)';
-            }
-          });
+          // 对每一行做地理编码后构建 features
+          Promise.all(rows.map(function(d){
+            return geocode(d).then(function(coords){
+              var country = d['Country'] || '';
+              return {
+                type:'Feature',
+                geometry:{type:'Point', coordinates: coords || COUNTRY_CENTER[country] || [0,0]},
+                properties:{
+                  company: d['Distributor'] || '',
+                  city: d['City'] || '',
+                  state: d['State/Province'] || '',
+                  country: country,
+                  countryKey: COUNTRY_KEY[country] || ''
+                }
+              };
+            });
+          })).then(function(features){
+            // 过滤掉没有有效国家的
+            features = features.filter(function(f){ return f.properties.countryKey; });
 
-          // 初始化地图 - 显示所有经销商
-          map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:features}});
+            // 创建国家分组 features
+            var countryData = {};
+            ['argentina','brasil','costarica','turkiye'].forEach(function(key){
+              countryData[key] = features.filter(function(f){ return f.properties.countryKey === key; });
+            });
+            currentDistributors = countryData;
 
-          // 粉红光晕圈（作为 LOGO 背景，让标记更醒目）
-          map.addLayer({
-            id:'dist-glow', type:'circle', source:'distributors',
-            paint:{'circle-radius':22,'circle-color':'#ff2d87','circle-opacity':0.22,'circle-blur':0.9}
-          });
-          map.addLayer({
-            id:'dist-halo', type:'circle', source:'distributors',
-            paint:{'circle-radius':14,'circle-color':'#ff2d87','circle-opacity':0.9}
-          });
-
-          // 用 VikingX LOGO 作为标记图示
-          var logoImg = new Image();
-          logoImg.onload = function(){
-            if(!map.hasImage('vikingx-logo')) {
-              map.addImage('vikingx-logo', logoImg);
-            }
-            map.addLayer({
-              id:'dist-dots', type:'symbol', source:'distributors',
-              layout:{
-                'icon-image':'vikingx-logo',
-                'icon-size':0.022,
-                'icon-allow-overlap':true,
-                'icon-ignore-placement':true
+            // 动态更新左侧数字徽章
+            document.querySelectorAll('.findus-country').forEach(function(item){
+              var key = item.getAttribute('data-country');
+              var count = countryData[key] ? countryData[key].length : 0;
+              var badge = item.querySelector('span:last-child');
+              if(badge) {
+                badge.textContent = count;
+                badge.style.background = item.classList.contains('active') ? '#ff2d87' : 'rgba(255,255,255,0.15)';
               }
             });
-          };
-          logoImg.src = 'assets/images/logo-h_mo29ompq.png';
 
-          // 构建 Google Maps 链接
-          function buildMapsUrl(p, coords){
-            var parts = [];
-            if(p.company) parts.push(p.company);
-            if(p.address) parts.push(p.address);
-            if(p.city) parts.push(p.city);
-            if(p.country) parts.push(p.country);
-            var query = parts.length ? encodeURIComponent(parts.join(', '))
-                                     : (coords[1] + ',' + coords[0]);
-            return 'https://www.google.com/maps/search/?api=1&query=' + query;
-          }
+            // 初始化地图 - 显示所有经销商
+            map.addSource('distributors',{type:'geojson', data:{type:'FeatureCollection',features:features}});
 
-          map.on('mouseenter','dist-dots', function(e){
-            map.getCanvas().style.cursor = 'pointer';
-            var p = e.features[0].properties;
-            var html = '<div style="font-size:0.9em;line-height:1.4;">' +
-              '<strong style="color:#ff2d87;display:block;margin-bottom:3px;">'+p.company+'</strong>' +
-              '<span style="color:#ccc;font-size:0.85em;display:block;margin-bottom:4px;">'+p.city+', '+p.country+'</span>';
-            if(p.fullName) html += '<small style="display:block;color:#aaa;"><strong>Contacto:</strong> '+p.fullName+'</small>';
-            if(p.phone) html += '<small style="display:block;color:#aaa;"><strong>Tel:</strong> '+p.phone+'</small>';
-            if(p.email) html += '<small style="display:block;color:#aaa;"><strong>Email:</strong> '+p.email+'</small>';
-            if(p.type) html += '<small style="display:block;color:#aaa;"><strong>Tipo:</strong> '+p.type+'</small>';
-            if(p.years) html += '<small style="display:block;color:#aaa;"><strong>Años:</strong> '+p.years+'</small>';
-            html += '<span style="display:block;margin-top:6px;color:#ff2d87;font-size:0.8em;font-weight:700;">📍 Click to open in Google Maps</span>';
-            html += '</div>';
-            popup.setLngLat(e.features[0].geometry.coordinates)
-                 .setHTML(html)
-                 .addTo(map);
-          });
-          map.on('mouseleave','dist-dots', function(){
-            map.getCanvas().style.cursor = '';
-            popup.remove();
-          });
-
-          // 点击红点 -> 另开视窗跳到 Google Maps
-          map.on('click','dist-dots', function(e){
-            var p = e.features[0].properties;
-            var coords = e.features[0].geometry.coordinates;
-            window.open(buildMapsUrl(p, coords), '_blank', 'noopener');
-          });
-
-          // 初始自动缩放以显示所有经销商
-          if(features.length > 0){
-            var bounds = new maplibregl.LngLatBounds();
-            features.forEach(function(f){ bounds.extend(f.geometry.coordinates); });
-            // 默认选中第一个有数据的国家
-            var firstWithData = ['argentina','brasil','costarica','turkiye'].find(function(k){
-              return countryData[k] && countryData[k].length > 0;
+            // 粉红光晕圈（作为 LOGO 背景，让标记更醒目）
+            map.addLayer({
+              id:'dist-glow', type:'circle', source:'distributors',
+              paint:{'circle-radius':22,'circle-color':'#ff2d87','circle-opacity':0.22,'circle-blur':0.9}
             });
-            if(features.length === 1){
-              map.flyTo({center: features[0].geometry.coordinates, zoom: 6, duration: 1200});
-            } else {
-              map.fitBounds(bounds, {padding: 60, duration: 1200, maxZoom: 7});
-            }
-            // 更新左侧选中状态到第一个有数据的国家
-            if(firstWithData){
-              document.querySelectorAll('.findus-country').forEach(function(item){
-                var isActive = item.getAttribute('data-country') === firstWithData;
-                item.classList.toggle('active', isActive);
-                item.style.borderLeftColor = isActive ? '#ff2d87' : 'transparent';
-                item.style.background = isActive ? 'rgba(255,45,135,0.12)' : 'rgba(255,255,255,0.04)';
-                var b = item.querySelector('span:last-child');
-                if(b) b.style.background = isActive ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+            map.addLayer({
+              id:'dist-halo', type:'circle', source:'distributors',
+              paint:{'circle-radius':14,'circle-color':'#ff2d87','circle-opacity':0.9}
+            });
+
+            // 用 VikingX LOGO 作为标记图示
+            var logoImg = new Image();
+            logoImg.onload = function(){
+              if(!map.hasImage('vikingx-logo')) {
+                map.addImage('vikingx-logo', logoImg);
+              }
+              map.addLayer({
+                id:'dist-dots', type:'symbol', source:'distributors',
+                layout:{
+                  'icon-image':'vikingx-logo',
+                  'icon-size':0.022,
+                  'icon-allow-overlap':true,
+                  'icon-ignore-placement':true
+                }
               });
+            };
+            logoImg.src = 'assets/images/logo-h_mo29ompq.png';
+
+            // Hover 显示地点资讯（只显示标题栏位：Distributor / City / State/Province / Country）
+            map.on('mouseenter','dist-dots', function(e){
+              map.getCanvas().style.cursor = 'pointer';
+              var p = e.features[0].properties;
+              var loc = [p.city, p.state].filter(Boolean).join(', ');
+              var html = '<div style="font-size:0.9em;line-height:1.4;">' +
+                '<strong style="color:#ff2d87;display:block;margin-bottom:3px;">'+p.company+'</strong>';
+              if(loc) html += '<span style="color:#ccc;font-size:0.85em;display:block;">'+loc+'</span>';
+              if(p.country) html += '<span style="color:#ccc;font-size:0.85em;display:block;">'+p.country+'</span>';
+              html += '</div>';
+              popup.setLngLat(e.features[0].geometry.coordinates)
+                   .setHTML(html)
+                   .addTo(map);
+            });
+            map.on('mouseleave','dist-dots', function(){
+              map.getCanvas().style.cursor = '';
+              popup.remove();
+            });
+
+            // 初始自动缩放以显示所有经销商
+            if(features.length > 0){
+              var bounds = new maplibregl.LngLatBounds();
+              features.forEach(function(f){ bounds.extend(f.geometry.coordinates); });
+              // 默认选中第一个有数据的国家
+              var firstWithData = ['argentina','brasil','costarica','turkiye'].find(function(k){
+                return countryData[k] && countryData[k].length > 0;
+              });
+              if(features.length === 1){
+                map.flyTo({center: features[0].geometry.coordinates, zoom: 6, duration: 1200});
+              } else {
+                map.fitBounds(bounds, {padding: 60, duration: 1200, maxZoom: 7});
+              }
+              // 更新左侧选中状态到第一个有数据的国家
+              if(firstWithData){
+                document.querySelectorAll('.findus-country').forEach(function(item){
+                  var isActive = item.getAttribute('data-country') === firstWithData;
+                  item.classList.toggle('active', isActive);
+                  item.style.borderLeftColor = isActive ? '#ff2d87' : 'transparent';
+                  item.style.background = isActive ? 'rgba(255,45,135,0.12)' : 'rgba(255,255,255,0.04)';
+                  var b = item.querySelector('span:last-child');
+                  if(b) b.style.background = isActive ? '#ff2d87' : 'rgba(255,255,255,0.15)';
+                });
+              }
             }
-          }
+          });
 
         })
         .catch(function(err){ console.error('Load error:', err); });
