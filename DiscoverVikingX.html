@@ -420,6 +420,7 @@ From day one, the mission has been simple: build components designed for riders 
     </div>
 </section>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <section id="findus-section" style="background-color:rgb(18,18,18);padding:5rem 0;">
   <div class="container">
 
@@ -438,62 +439,131 @@ From day one, the mission has been simple: build components designed for riders 
       <div class="col-12 col-lg-4">
         <ul id="findus-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;">
 
-          <li class="findus-country active" data-map="https://maps.google.com/maps?q=Argentina&output=embed&z=5"
+          <li class="findus-country active" data-country="argentina"
               style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid #ff2d87;background:rgba(255,45,135,0.12);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇦🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Argentina</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Argentina</span>
+            <span style="background:#ff2d87;color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">8</span>
           </li>
 
-          <li class="findus-country" data-map="https://maps.google.com/maps?q=Brazil&output=embed&z=5"
+          <li class="findus-country" data-country="brasil"
               style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇧🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Brasil</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Brasil</span>
+            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">7</span>
           </li>
 
-          <li class="findus-country" data-map="https://maps.google.com/maps?q=Costa+Rica&output=embed&z=7"
+          <li class="findus-country" data-country="costarica"
               style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇨🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Costa Rica</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Costa Rica</span>
+            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">1</span>
           </li>
 
-          <li class="findus-country" data-map="https://maps.google.com/maps?q=Turkey&output=embed&z=6"
+          <li class="findus-country" data-country="turkiye"
               style="padding:1.1rem 1.5rem;cursor:pointer;border-left:4px solid transparent;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:1.1rem;border-radius:0 8px 8px 0;transition:all 0.25s;">
             <span style="font-size:2.2rem;line-height:1;">🇹🇷</span>
-            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;">Türkiye</span>
+            <span class="mbr-fonts-style display-7" style="color:#ffffff;font-weight:700;font-size:1.1rem;flex:1;">Türkiye</span>
+            <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;min-width:1.8rem;text-align:center;">0</span>
           </li>
 
         </ul>
       </div>
 
-      <!-- Right: Google Map -->
+      <!-- Right: Leaflet Map -->
       <div class="col-12 col-lg-8">
-        <iframe id="findus-map"
-          src="https://maps.google.com/maps?q=Argentina&output=embed&z=5"
-          width="100%" height="450"
-          style="border:0;border-radius:12px;display:block;"
-          allowfullscreen loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
+        <div id="findus-map" style="width:100%;height:450px;border-radius:12px;overflow:hidden;"></div>
       </div>
 
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
   (function(){
+    var COUNTRIES = {
+      argentina: {
+        center: [-34, -63], zoom: 5,
+        pins: [
+          {name:'Bicicletería HITO',        city:'General Pico, La Pampa',       lat:-35.6561, lng:-63.7568},
+          {name:'Eleven Bikes',              city:'Cordoba',                       lat:-31.4201, lng:-64.1888},
+          {name:'Bicicleteria Laser',        city:'Buenos Aires',                  lat:-34.6037, lng:-58.3816},
+          {name:'Bicicleteria el aleman',    city:'San José de la esquina, SF',    lat:-33.0833, lng:-61.7500},
+          {name:'Bicicleteriaelgringo',      city:'Mendoza',                       lat:-32.8908, lng:-68.8272},
+          {name:'Bike cycle',                city:'Despeñaderos, Córdoba',         lat:-31.8507, lng:-64.3188},
+          {name:'Krowbikeco',                city:'Rosario',                       lat:-32.9442, lng:-60.6505},
+          {name:'BICICLETERIA ARECO',        city:'Monte caseros, Corrientes',     lat:-30.2573, lng:-57.6440}
+        ]
+      },
+      brasil: {
+        center: [-15, -51], zoom: 4,
+        pins: [
+          {name:'Gabriel peças',     city:'Guaratuba, Paraná',            lat:-25.8817, lng:-48.5756},
+          {name:'Casa do ciclista',  city:'Lajeado, RS',                  lat:-29.4656, lng:-51.9614},
+          {name:'Davi Lucas',        city:'São Luís do Quitunde, AL',     lat:-9.2500,  lng:-35.4167},
+          {name:'Bikecr',            city:'Fortaleza, Ceará',             lat:-3.7327,  lng:-38.5270},
+          {name:'NR da Silva',       city:'Almirante Tamandaré, PR',      lat:-25.3211, lng:-49.3044},
+          {name:'Nick teste',        city:'Pinheiro Machado, RS',         lat:-31.5783, lng:-53.3807},
+          {name:'Luiz',              city:'Cambara, Paraná',              lat:-23.0408, lng:-50.0739}
+        ]
+      },
+      costarica: {
+        center: [9.93, -84.09], zoom: 10,
+        pins: [
+          {name:'Monkey bikes', city:'San José', lat:9.9281, lng:-84.0907}
+        ]
+      },
+      turkiye: {
+        center: [39.0, 35.0], zoom: 6,
+        pins: []
+      }
+    };
+
+    var map = L.map('findus-map', {zoomControl:true, scrollWheelZoom:false})
+               .setView(COUNTRIES.argentina.center, COUNTRIES.argentina.zoom);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom:19
+    }).addTo(map);
+
+    var activeMarkers = [];
+
+    function loadCountry(key) {
+      activeMarkers.forEach(function(m){ map.removeLayer(m); });
+      activeMarkers = [];
+      var d = COUNTRIES[key];
+      map.flyTo(d.center, d.zoom, {duration:1.2});
+      d.pins.forEach(function(pin){
+        var m = L.circleMarker([pin.lat, pin.lng], {
+          radius:10, fillColor:'#ff2d87', color:'#ffffff',
+          weight:2, opacity:1, fillOpacity:0.95
+        }).addTo(map)
+          .bindPopup('<strong style="color:#111;">'+pin.name+'</strong><br><span style="color:#555;font-size:0.85em;">'+pin.city+'</span>');
+        activeMarkers.push(m);
+      });
+    }
+
+    // Load Argentina by default
+    loadCountry('argentina');
+
+    // Click handlers
     var items = document.querySelectorAll('.findus-country');
-    var mapFrame = document.getElementById('findus-map');
     items.forEach(function(item){
       item.addEventListener('click', function(){
         items.forEach(function(i){
           i.style.borderLeftColor = 'transparent';
           i.style.background = 'rgba(255,255,255,0.04)';
           i.classList.remove('active');
+          var badge = i.querySelector('span:last-child');
+          if(badge) badge.style.background = 'rgba(255,255,255,0.15)';
         });
         item.style.borderLeftColor = '#ff2d87';
         item.style.background = 'rgba(255,45,135,0.12)';
         item.classList.add('active');
-        mapFrame.src = item.getAttribute('data-map');
+        var badge = item.querySelector('span:last-child');
+        if(badge) badge.style.background = '#ff2d87';
+        loadCountry(item.getAttribute('data-country'));
       });
     });
   })();
